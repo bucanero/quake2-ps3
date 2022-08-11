@@ -1,0 +1,329 @@
+#---------------------------------------------------------------------------------
+# Clear the implicit built in rules
+#---------------------------------------------------------------------------------
+.SUFFIXES:
+#---------------------------------------------------------------------------------
+ifeq ($(strip $(PSL1GHT)),)
+$(error "Please set PSL1GHT in your environment. export PSL1GHT=<path>")
+endif
+
+include $(PSL1GHT)/ppu_rules
+
+#---------------------------------------------------------------------------------
+# TARGET is the name of the output
+# BUILD is the directory where object files & intermediate files will be placed
+# SOURCES is a list of directories containing source code
+# INCLUDES is a list of directories containing extra header files
+#---------------------------------------------------------------------------------
+TARGET		:=	$(notdir $(CURDIR))
+BUILD		:=	build
+
+#---------------------------------------------------------------------------------
+# C source files
+#---------------------------------------------------------------------------------
+#				PS3 backend
+CSOURCES	:=	\
+				src/backends/ps3/shared/dummy_hunk.c \
+				src/backends/ps3/system.c \
+				src/backends/ps3/main.c \
+				src/backends/ps3/network_loopback.c
+
+#				Common
+CSOURCES	+=	\
+				src/common/shared/shared_ps3.c \
+				src/common/shared/flash.c \
+				src/common/shared/rand.c \
+				src/common/argproc.c \
+				src/common/filesystem_ps3.c \
+				src/common/frame_ps3.c \
+				src/common/md4.c \
+				src/common/movemsg.c \
+				src/common/pmove.c \
+				src/common/netchan.c \
+				src/common/cmdparser.c \
+				src/common/clientserver.c \
+				src/common/zone.c \
+				src/common/crc.c \
+				src/common/collision.c \
+				src/common/szone.c \
+				src/common/glob.c \
+				src/common/cvar.c \
+				src/common/unzip/miniz.c \
+				src/common/unzip/unzip.c \
+				src/common/unzip/ioapi.c
+
+#				Game
+CSOURCES	+=	\
+				src/game/monster/berserker/berserker.c \
+				src/game/monster/boss2/boss2.c \
+				src/game/monster/boss3/boss3.c \
+				src/game/monster/boss3/boss31.c \
+				src/game/monster/boss3/boss32.c \
+				src/game/monster/brain/brain.c \
+				src/game/monster/chick/chick.c \
+				src/game/monster/flipper/flipper.c \
+				src/game/monster/float/float.c \
+				src/game/monster/flyer/flyer.c \
+				src/game/monster/gladiator/gladiator.c \
+				src/game/monster/gunner/gunner.c \
+				src/game/monster/hover/hover.c \
+				src/game/monster/infantry/infantry.c \
+				src/game/monster/insane/insane.c \
+				src/game/monster/medic/medic.c \
+				src/game/monster/misc/move.c \
+				src/game/monster/mutant/mutant.c \
+				src/game/monster/parasite/parasite.c \
+				src/game/monster/soldier/soldier.c \
+				src/game/monster/supertank/supertank.c \
+				src/game/monster/tank/tank.c \
+				src/game/player/view.c \
+				src/game/player/weapon.c \
+				src/game/player/client.c \
+				src/game/player/hud.c \
+				src/game/player/trail.c \
+				src/game/savegame/savegame.c \
+				src/game/g_phys.c \
+				src/game/g_turret.c \
+				src/game/g_utils.c \
+				src/game/g_target.c \
+				src/game/g_weapon.c \
+				src/game/g_combat.c \
+				src/game/g_items.c \
+				src/game/g_func.c \
+				src/game/g_cmds.c \
+				src/game/g_misc.c \
+				src/game/g_monster.c \
+				src/game/g_main_ps3.c \
+				src/game/g_svcmds.c \
+				src/game/g_spawn.c \
+				src/game/g_ai.c \
+				src/game/g_trigger.c \
+				src/game/g_chase.c
+
+#				Server
+CSOURCES	+=	\
+				src/server/sv_save.c \
+				src/server/sv_main.c \
+				src/server/sv_cmd.c \
+				src/server/sv_send.c \
+				src/server/sv_conless.c \
+				src/server/sv_world.c \
+				src/server/sv_entities.c \
+				src/server/sv_init.c \
+				src/server/sv_user.c \
+				src/server/sv_game_ps3.c
+
+#				Client curl
+CSOURCES	+=	\
+				src/client/curl/download.c \
+				src/client/curl/qcurl.c
+
+#				Client input
+CSOURCES	+=	\
+				src/client/input/input_ps3.c
+
+#				Client menu
+CSOURCES	+=	\
+				src/client/menu/menu.c \
+				src/client/menu/videomenu.c \
+				src/client/menu/qmenu.c
+
+#				Client refresh
+CSOURCES	+=	\
+				src/client/refresh/files/pcx.c \
+				src/client/refresh/files/wal.c \
+				src/client/refresh/files/stb.c \
+				src/client/refresh/files/pvs.c \
+				src/client/refresh/soft/sw_surf.c \
+				src/client/refresh/soft/sw_alias.c \
+				src/client/refresh/soft/sw_poly.c \
+				src/client/refresh/soft/sw_rast.c \
+				src/client/refresh/soft/sw_edge.c \
+				src/client/refresh/soft/sw_light.c \
+				src/client/refresh/soft/sw_bsp.c \
+				src/client/refresh/soft/sw_model.c \
+				src/client/refresh/soft/sw_draw.c \
+				src/client/refresh/soft/sw_part.c \
+				src/client/refresh/soft/sw_polyset.c \
+				src/client/refresh/soft/sw_scan.c \
+				src/client/refresh/soft/sw_aclip.c \
+				src/client/refresh/soft/sw_sprite.c \
+				src/client/refresh/soft/sw_image.c
+
+#				Client refresh - ps3 specific
+CSOURCES	+=	\
+				src/client/refresh/soft/sw_ps3_misc.c \
+				src/client/refresh/soft/sw_ps3_fixes.c \
+				src/client/refresh/soft/sw_ps3_main.c \
+				src/client/refresh/soft/sw_ps3_gsm.c
+
+#				Client sound
+CSOURCES	+=	\
+				src/client/sound/ogg.c \
+				src/client/sound/wave.c \
+				src/client/sound/qal.c \
+				src/client/sound/openal.c
+
+#				Client sound - ps3 specific
+CSOURCES	+=	\
+				src/client/sound/sound_backend_ps3.c \
+				src/client/sound/sound_ps3.c
+
+#				Client vid
+CSOURCES	+=	\
+				src/client/vid/vid_ps3.c
+
+#				Client vid - ps3 specific
+CSOURCES	+=	\
+				src/client/vid/glimp_ps3.c
+
+#				Client base
+CSOURCES	+=	\
+				src/client/cl_prediction.c \
+				src/client/cl_lights.c \
+				src/client/cl_entities.c \
+				src/client/cl_tempentities.c \
+				src/client/cl_screen.c \
+				src/client/cl_cin.c \
+				src/client/cl_console.c \
+				src/client/cl_view.c \
+				src/client/cl_download.c \
+				src/client/cl_inventory.c \
+				src/client/cl_main.c \
+				src/client/cl_effects.c \
+				src/client/cl_particles.c \
+				src/client/cl_network.c \
+				src/client/cl_keyboard.c \
+				src/client/cl_input.c \
+				src/client/cl_parse.c
+
+#---------------------------------------------------------------------------------
+
+SOURCES		:=
+DATA		:=	data
+INCLUDES	:=	$(PS3DEV)/portlibs/ppu/include
+
+TITLE		:=	RSXGL Sample 02
+APPID		:=	rsxglsa2
+CONTENTID	:=	UP0001-$(APPID)_00-0000000000000000
+
+#---------------------------------------------------------------------------------
+# options for code generation
+#---------------------------------------------------------------------------------
+
+#CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) -D__RSX__ -DEIGEN2_SUPPORT
+CFLAGS = -O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) -D__PSL1GHT__ -DIOAPI_NO_64 -DYQ2OSTYPE=\"GameOS\" -DYQ2ARCH=\"PS3\" -DUNICORE -I/opt/X11/include
+
+#CXXFLAGS	=	$(CFLAGS)
+CXXFLAGS = $(CFLAGS) -std=c++11 
+
+LDFLAGS		=	$(MACHDEP) -Wl,-Map,$(notdir $@).map
+
+#---------------------------------------------------------------------------------
+# any extra libraries we wish to link with the project
+#---------------------------------------------------------------------------------
+LIBS	:=	-lrsx -lgcm_sys -lnet -lio -lsysutil -lsysmodule -lrt -llv2 -laudio -lm
+
+#---------------------------------------------------------------------------------
+# list of directories containing libraries, this must be the top level containing
+# include and lib
+#---------------------------------------------------------------------------------
+LIBDIRS	:= $(PORTLIBS) #/usr/local/ps3dev/ppu/lib
+
+#---------------------------------------------------------------------------------
+# no real need to edit anything past this point unless you need to add additional
+# rules for different file extensions
+#---------------------------------------------------------------------------------
+ifneq ($(BUILD),$(notdir $(CURDIR)))
+#---------------------------------------------------------------------------------
+
+export OUTPUT	:=	$(CURDIR)/$(TARGET)
+
+export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
+					$(foreach dir,$(DATA),$(CURDIR)/$(dir)) \
+					$(foreach cfile, $(CSOURCES), $(CURDIR)/$(dir $(cfile)))
+
+export DEPSDIR	:=	$(CURDIR)/$(BUILD)
+
+export BUILDDIR	:=	$(CURDIR)/$(BUILD)
+
+#---------------------------------------------------------------------------------
+# automatically build a list of object files for our project
+#---------------------------------------------------------------------------------
+CFILES		:=	$(foreach cfile, $(CSOURCES), $(notdir $(cfile)))
+
+CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
+sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
+SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
+BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+
+#---------------------------------------------------------------------------------
+# use CXX for linking C++ projects, CC for standard C
+#---------------------------------------------------------------------------------
+ifeq ($(strip $(CPPFILES)),)
+	export LD	:=	$(CC)
+else
+	export LD	:=	$(CXX)
+endif
+
+export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
+					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
+					$(sFILES:.s=.o) $(SFILES:.S=.o)
+
+#---------------------------------------------------------------------------------
+# build a list of include paths
+#---------------------------------------------------------------------------------
+export INCLUDE := 	$(foreach dir,$(INCLUDES), -I$(CURDIR)/$(dir)) \
+					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+					$(LIBPSL1GHT_INC) -I$(CURDIR)/$(BUILD) \
+					-I$(PORTLIBS)/include
+
+#---------------------------------------------------------------------------------
+# build a list of library paths
+#---------------------------------------------------------------------------------
+export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
+					$(LIBPSL1GHT_LIB) -L$(PORTLIBS)/lib
+
+export OUTPUT	:=	$(CURDIR)/$(TARGET)
+.PHONY: $(BUILD) clean
+
+#---------------------------------------------------------------------------------
+$(BUILD):
+	@[ -d $@ ] || mkdir -p $@
+	#@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile.ps3
+	@$(MAKE) -C $(BUILD) -f $(CURDIR)/Makefile.ps3
+
+#---------------------------------------------------------------------------------
+clean:
+	@echo clean ...
+	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).self $(OUTPUT).fake.self
+
+#---------------------------------------------------------------------------------
+run:
+	ps3load $(OUTPUT).self
+
+
+#---------------------------------------------------------------------------------
+else
+
+DEPENDS	:=	$(OFILES:.o=.d)
+
+#---------------------------------------------------------------------------------
+# main targets
+#---------------------------------------------------------------------------------
+$(OUTPUT).self: $(OUTPUT).elf
+$(OUTPUT).elf:	$(OFILES)
+
+#---------------------------------------------------------------------------------
+# This rule links in binary data with the .bin extension
+#---------------------------------------------------------------------------------
+%.bin.o	:	%.bin
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	@$(bin2o)
+
+-include $(DEPENDS)
+
+#---------------------------------------------------------------------------------
+endif
+#---------------------------------------------------------------------------------

@@ -126,8 +126,18 @@ typedef unsigned char byte;
  *       LATCH_CVAR_SAVELENGTH system-independent (or remove it and hardcode a
  *       sensible value in the two functions)
  */
+#if defined(__PSL1GHT__)
+ // 256 used in apollo's savetool. I belive real path max lenght
+ // on PS3 is 1024 but let's keep it as some smart people say.
+ #define MAX_OSPATH 256
+ #define LATCH_CVAR_SAVELENGTH 256
 
-#ifdef _WIN32
+ // Defining empty Q2_DLL_EXPORTED because building for PS3 
+ // not allows shared libs, or at least I don't know how to use
+ // them
+ #define Q2_DLL_EXPORTED
+
+#elif defined(_WIN32)
  #define MAX_OSPATH 256             /* max length of a filesystem pathname (same as MAX_PATH) */
  #define LATCH_CVAR_SAVELENGTH 256
 
